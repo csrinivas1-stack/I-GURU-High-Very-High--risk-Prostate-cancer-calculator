@@ -69,9 +69,9 @@ footer{font-size:12px;color:var(--muted)}
 
 <div class="wrap">
   <header>
-    <div class="eyebrow">I-GURU pooled cohort · cT4 / cN1 / Grade Group 5 · RT + ADT</div>
+    <div class="eyebrow">I-GURU pooled cohort</div>
     <h1>Metastasis-free survival after radiotherapy and ADT, by PSMA PET staging and clinical factors</h1>
-    <p class="lede">Five-factor Cox model fitted on 982 non-metastatic very-high-risk prostate cancer patients from 21 Indian centres treated with definitive radiotherapy and long-term ADT without abiraterone or docetaxel (243 MFS events, median follow-up 51 months). Research prototype for internal review; not validated externally.</p>
+    <p class="lede">Five-factor Cox model built from 1,087 non-metastatic high and very-high-risk prostate cancer patients from 21 Indian centres treated with definitive radiotherapy and long-term ADT (median follow-up 51 months).</p>
   </header>
 
   <div class="grid">
@@ -109,7 +109,7 @@ footer{font-size:12px;color:var(--muted)}
           <input type="radio" name="pelvis" id="pel0" value="0"><label for="pel0">Prostate only</label>
         </div>
       </fieldset>
-      <p class="hint">Age and baseline PSA were tested and had no independent effect on MFS (age HR 0.996/yr, PSA 0.95 per doubling; 5-yr MFS 74–76% across age bands and 70–77% across PSA bands), so they are not inputs. All patients received ADT (median 24 months). The model does not apply to patients given abiraterone or docetaxel, or to M1 disease.</p>
+      <p class="hint">All patients received ADT (median 24 months). The model does not apply to patients given abiraterone or docetaxel, or to M1 disease.</p>
     </section>
 
     <section class="panel" aria-label="Predicted outcome">
@@ -128,7 +128,7 @@ footer{font-size:12px;color:var(--muted)}
     </section>
   </div>
 
-  <div class="cols">
+  <div class="cols" style="grid-template-columns:1fr">
     <section class="panel">
       <h2>Model coefficients (MFS, Cox)</h2>
       <div class="tblwrap"><table>
@@ -137,23 +137,14 @@ footer{font-size:12px;color:var(--muted)}
       </table></div>
       <p class="note" style="margin-top:10px">Reference categories: conventional staging, ≤T3b, cN0, GG 4, prostate-only RT. Centre-clustered robust CIs are slightly narrower (pelvic RT 0.69–1.08). Apparent C-index 0.645; bootstrap optimism-corrected 0.636 (300 resamples). Calibration at 5 years by risk tertile: predicted 86 / 77 / 62% vs observed 83 / 76 / 65%. Proportional hazards hold for all terms (pelvic RT borderline, p=0.048).</p>
     </section>
-    <section class="panel">
-      <h2>Two questions this cohort answers</h2>
-      <ul class="note">
-        <li><b>1. What does PSMA PET staging do to prognosis?</b> Full cohort, 1,087 patients (abiraterone/docetaxel recipients included and adjusted for): adjusted MFS HR 0.57 (0.42–0.76), distant metastasis 0.55 (0.39–0.76), overall survival 0.61 (0.38–0.96). It is a staging-quality effect, not a treatment effect: PSMA removes occult M1 disease from the "M0" group. The effect is concentrated in GG ≤4 (cN1 GG ≤4: 5-yr MFS 74% → 86%) and absent in GG5 (cN0 76 vs 77%; cN1 57 vs 63%).</li>
-        <li><b>2. Which PSMA-staged patients can avoid systemic intensification?</b> PSMA-staged STAMPEDE-eligible patients on RT + ADT alone (n=438, median follow-up 41 months): GG ≤4 reach 86% 5-yr / 81% 6-yr MFS, matching the STAMPEDE abiraterone arm; GG5 reach 66% / 63%, matching the STAMPEDE control arm; GG5 + T4 + cN1 only 43%. Grade group, not T or N, decides.</li>
-        <li><b>Caveats.</b> Follow-up in the PSMA group is 41 months (91 at risk at 5 years); STAMPEDE's benchmark is from conventionally staged UK patients and its hazard ratio may not transport; grade is local biopsy grading from 21 centres; T stage below T4 does not separate because no patient entered on T2/T3 alone.</li>
-      </ul>
-      <div class="warn">Prototype built for hypothesis generation. Before clinical use it needs external validation, a competing-risk check for non-prostate death, and centre-level calibration.</div>
-    </section>
   </div>
 
   <section class="panel">
     <h2>Computation</h2>
     <div class="formula">S(t | x) = S₀(t) ^ exp( Σ βᵢ · (xᵢ − x̄ᵢ) )   — S₀(t) is the Breslow baseline at the covariate means (lifelines CoxPHFitter); S₀(60 mo) = 0.769</div>
-    <p class="note" style="margin-top:10px">Time runs from the first day of radiotherapy. MFS event = radiologically detected distant metastasis or death from any cause, whichever first. Cohort: 1,103 unique patients from the pooled cT4, cN1 and GG5 I-GURU registries after de-duplication; 15 excluded for missing RT or follow-up dates, 1 for unknown staging, 96 for abiraterone/docetaxel; 9 further dropped for missing T stage or grade.</p>
+    <p class="note" style="margin-top:10px">Time runs from the first day of radiotherapy. MFS event = radiologically detected distant metastasis or death from any cause, whichever first.</p>
   </section>
-  <footer>I-GURU (Indian Genito-Urinary Radiation oncology Users) pooled analysis, October 2026. Model fitted in Python/lifelines 0.30; coefficients embedded in this page, no data leaves the browser.</footer>
+  <footer>I-GURU (Indian Genito-Urinary Radiation oncology Users) pooled analysis, October 2026. Model fitted in Python/lifelines 0.30.</footer>
 </div>
 
 <script>
