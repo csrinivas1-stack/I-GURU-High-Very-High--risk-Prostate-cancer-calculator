@@ -36,7 +36,7 @@ legend,label.l{display:block;font-weight:600;font-size:13px;margin-bottom:6px}
 input[type=number]{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);font:inherit;font-variant-numeric:tabular-nums}
 input[type=number]:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .hint{font-size:12px;color:var(--muted);margin-top:4px}
-.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
 .tile{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:var(--bg)}
 .tile .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 .tile .v{font-family:var(--display);font-size:30px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
@@ -117,12 +117,11 @@ footer{font-size:12px;color:var(--muted)}
       <h2>Predicted metastasis-free survival</h2>
       <div class="band" id="band"><i id="dot"></i><span id="bandtxt">Intermediate risk</span></div>
       <div class="tiles">
-        <div class="tile"><div class="k">3-year MFS</div><div class="v" id="m36">–</div><div class="s">cohort avg <span id="a36">–</span></div></div>
         <div class="tile"><div class="k">5-year MFS</div><div class="v" id="m60">–</div><div class="s">cohort avg <span id="a60">–</span></div></div>
-        <div class="tile"><div class="k">7-year MFS</div><div class="v" id="m84">–</div><div class="s">cohort avg <span id="a84">–</span></div></div>
+        <div class="tile"><div class="k">6-year MFS</div><div class="v" id="m72">–</div><div class="s">cohort avg <span id="a72">–</span> · STAMPEDE 69 (66–72) / 82 (79–85)</div></div>
       </div>
       <div class="chartbox"><svg id="chart" viewBox="0 0 640 330" role="img" aria-label="Predicted metastasis-free survival curve over 8 years"></svg></div>
-      <div class="legend"><span class="p">This patient (as staged); shaded band = 95% CI</span><span class="c">Same patient, other staging modality (lighter band = its 95% CI)</span></div>
+      <div class="legend"><span class="p">This patient (as staged); shaded band = 95% CI</span><span class="c" id="altlab">Same profile, conventionally staged (lighter band = 95% CI)</span></div>
       <div class="warn" id="verdict" style="margin-top:14px"></div>
       <p class="compare" id="cmp"></p>
       <p class="compare">Relative hazard vs cohort average: <b id="hr">–</b> · linear predictor <b id="lp">–</b></p>
@@ -181,7 +180,7 @@ function draw(l1,l2){
   for(let yr=0;yr<=8;yr++)g+=`<text x="${x(yr*12)}" y="${H-mb+18}" text-anchor="middle" font-size="11" fill="var(--muted)">${yr}</text>`;
   g+=`<text x="${ml+pw/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="var(--muted)">Years from start of radiotherapy</text>`;
   const path=(l)=>{let d='',prev=null;for(const [t,s] of S0){if(t>TMAX)break;const sv=surv(t,l);if(prev===null)d+=`M${x(t)} ${y(sv)}`;else d+=`H${x(t)} V${y(sv)}`;prev=sv;}d+=`H${x(TMAX)}`;return d;};
-  for(const [s,lab] of [[0.82,'STAMPEDE abiraterone arm 82% at 6 y'],[0.69,'STAMPEDE control arm 69% at 6 y']]){g+=`<line x1="${ml}" x2="${x(72)}" y1="${y(s)}" y2="${y(s)}" stroke="var(--muted)" stroke-width="1" stroke-dasharray="1 3"/><text x="${x(72)+4}" y="${y(s)+4}" font-size="10" fill="var(--muted)">${lab}</text>`;}
+  for(const [s,lo,hi,lab] of [[0.82,0.79,0.85,'STAMPEDE abiraterone arm 82% (79–85) at 6 y'],[0.69,0.66,0.72,'STAMPEDE control arm 69% (66–72) at 6 y']]){g+=`<rect x="${ml}" y="${y(hi)}" width="${x(72)-ml}" height="${y(lo)-y(hi)}" fill="var(--muted)" fill-opacity="0.12"/><line x1="${ml}" x2="${x(72)}" y1="${y(s)}" y2="${y(s)}" stroke="var(--muted)" stroke-width="1" stroke-dasharray="1 3"/><text x="${x(72)+4}" y="${y(s)+4}" font-size="10" fill="var(--muted)">${lab}</text>`;}
   if(BD){let up='',dn='';for(let i=0;i<BOOT.grid.length;i++){const t=BOOT.grid[i];if(t>TMAX)break;up+=`${i?'L':'M'}${x(t)} ${y(BD.hi[i])} `;}
     for(let i=BOOT.grid.length-1;i>=0;i--){const t=BOOT.grid[i];if(t>TMAX)continue;dn+=`L${x(t)} ${y(BD.lo[i])} `;}
     g+=`<path d="${up}${dn}Z" fill="var(--accent)" fill-opacity="0.13" stroke="none"/>`;}
@@ -190,14 +189,15 @@ function draw(l1,l2){
     g+=`<path d="${up}${dn}Z" fill="var(--conv)" fill-opacity="0.09" stroke="none"/>`;}
   g+=`<path d="${path(l2)}" fill="none" stroke="var(--conv)" stroke-width="2" stroke-dasharray="5 4"/>`;
   g+=`<path d="${path(l1)}" fill="none" stroke="var(--accent)" stroke-width="3"/>`;
-  for(const t of [36,60,84]){const sv=surv(t,l1);g+=`<line x1="${x(t)}" x2="${x(t)}" y1="${y(sv)}" y2="${H-mb}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="2 3"/><circle cx="${x(t)}" cy="${y(sv)}" r="4" fill="var(--accent)"/>`;}
+  for(const t of [60,72]){const sv=surv(t,l1);g+=`<line x1="${x(t)}" x2="${x(t)}" y1="${y(sv)}" y2="${H-mb}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="2 3"/><circle cx="${x(t)}" cy="${y(sv)}" r="4" fill="var(--accent)"/>`;}
   g+=`<line x1="${ml}" x2="${W-mr}" y1="${H-mb}" y2="${H-mb}" stroke="var(--muted)"/>`;
   document.getElementById('chart').innerHTML=g;
 }
 function update(){
   const x=covs(),l=lp(x);const alt=covs(x.psma?0:1),l2=lp(alt);
   BD=band(x); BD2=band(alt);
-  for(const t of [36,60,84]){const [lo,hi]=bandAt(BD,t);document.getElementById('m'+t).innerHTML=pct(surv(t,l))+`<span class="ci">${(100*lo).toFixed(0)}–${(100*hi).toFixed(0)}</span>`;document.getElementById('a'+t).textContent=pct(s0(t));}
+  document.getElementById('altlab').textContent=x.psma?'Same profile, conventionally staged (lighter band = 95% CI)':'Same profile, PSMA PET-staged (lighter band = 95% CI)';
+  for(const t of [60,72]){const [lo,hi]=bandAt(BD,t);document.getElementById('m'+t).innerHTML=pct(surv(t,l))+`<span class="ci">${(100*lo).toFixed(0)}–${(100*hi).toFixed(0)}</span>`;document.getElementById('a'+t).textContent=pct(s0(t));}
   const hr=Math.exp(l);document.getElementById('hr').textContent=hr.toFixed(2);document.getElementById('lp').textContent=l.toFixed(2);
   const s5=surv(60,l),s6=surv(72,l);let bandLabel,col,verdict;
   if(s5>=0.80){bandLabel='Lower risk · 5-yr MFS ≥ 80%';col='var(--risk-lo)';}else if(s5>=0.65){bandLabel='Intermediate risk · 5-yr MFS 65–80%';col='var(--risk-mid)';}else{bandLabel='Higher risk · 5-yr MFS < 65%';col='var(--risk-hi)';}
